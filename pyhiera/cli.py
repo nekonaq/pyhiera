@@ -1,6 +1,7 @@
 import sys
 import argparse
 import json
+from .yaml import dump_yaml
 
 from . import __version__
 from .hiera import Hiera
@@ -19,36 +20,23 @@ class Command:
 
     def create_parser(self, prog=None):
         parser = argparse.ArgumentParser(prog=prog or getattr(self, 'PROG', None))
+        parser.set_defaults(output_handler=self.output_json)
 
         parser.add_argument(
             'config_file', action='store',
             metavar='CONFIG_FILE'
         )
-        # parser.add_argument(
-        #     '--delimiter', '-d', action='store', default='-',
-        #     help="word delimiter",
-        #     )
-        # parser.add_argument(
-        #     '--words', '-w',
-        #     action='store', type=int, default=4,
-        #     help="number of words",
-        #     )
-        # parser.add_argument(
-        #     '--min-length',
-        #     action='store', type=int, default=3,
-        #     help="number of words",
-        #     )
-        # parser.add_argument(
-        #     '--max-length',
-        #     action='store', type=int, default=6,
-        #     help="number of words",
-        #     )
-        # parser.add_argument(
-        #     '--vcr',
-        #     action='store', default='small',
-        #     choices=['random', 'small', 'medium', 'large'],
-        #     help="vcr of words",
-        #     )
+        parser.add_argument(
+            '--json', '-j', action='store_const', dest='output_handler',
+            const=self.output_json,
+            )
+        parser.add_argument(
+            '--yaml', '-y', action='store_const', dest='output_handler',
+            const=self.output_yaml,
+            )
+        parser.add_argument(
+            '--environment', '-e', action='store', default='local',
+            )
         parser.add_argument(
             '--traceback', action='store_true',
             help="traceback on exception",
@@ -84,20 +72,26 @@ class Command:
                 self.stderr.write("{}: {}\n".format(type(err).__name__, err))
             sys.exit(1)
 
-    def handle(self, *args, config_file=None, **options):
-        # print("{}:{}".format(self.__class__.__module__, self.__class__.__name__))
 
-        #//test data
-        # import argparse
-        # envlocal = argparse.Namespace(name={'foo': 'local'})
+    def handle(self, *args,
+               config_file=None,
+               environment=None,
+               output_handler=None,
+               **options):
 
         context = {
-            'environment': 'local',
+            'environment': environment,
         }
         hiera_data = Hiera.load_data(config_file, context=context)
         hiera_dict = hiera_data.flatten()
 
-        # import pprint
-        # self.stdout.write(pprint.pformat(hiera_dict))
-        json.dump(hiera_dict, self.stdout, indent=2)
-        self.stdout.write("\n")
+        output_handler(hiera_dict)
+
+    def output_json(self, data, outfile=None):
+        outfile = outfile or self.stdout
+        json.dump(data, outfile, indent=2)
+        outfile.write("\n")
+
+    def output_yaml(self, data, outfile=None):
+        outfile = outfile or self.stdout
+        dump_yaml(data, stream=outfile, explicit_start=True)
