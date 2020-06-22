@@ -49,8 +49,11 @@ class HieraBackend:
         for num, path in enumerate(self.paths):
             resolved = self.resolve_path(path)
             realpath = self.hiera.base_dir.joinpath(self.datadir, resolved)
-            with realpath.open('r') as fp:
-                data = load_yaml(fp)
+            try:
+                with realpath.open('r') as fp:
+                    data = load_yaml(fp)
+            except IOError:
+                data = {}
             data_item = HieraDataItem(self, num=num, path=realpath)
             data_item.update(data)
             yield data_item
