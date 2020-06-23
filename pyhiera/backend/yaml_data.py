@@ -39,15 +39,29 @@ class HieraBackend:
     CHAR_RB = chr(ord('}') & 0x1f)         # '\x1d'
     TRANS_BRACES = str.maketrans('{}', ''.join([CHAR_LB, CHAR_RB]))
 
-    def resolve_path(self, value):
+    def resolve_str(self, value):
         ret = value.translate(self.TRANS_BRACES)
         ret = self.RE_INTERPOLATE.sub('{\g<1>}', ret)  # noqa: W605
         ret = ret.replace(self.CHAR_LB, '{{').replace(self.CHAR_RB, '}}')
         return ret.format(**self.context)
 
+    def resolve_data(self, value):
+        if isinstance(value, str):
+            return self.resolve_str(value)
+
+        if isinstance(value, list):
+            return [self.resolve_data(el) for el in value]
+
+        if isinstance(value, dict):
+            return {
+                key: self.resolve_data(val)
+                for key, val in value.items()
+            }
+        return value
+
     def load(self):
         for num, path in enumerate(self.paths):
-            resolved = self.resolve_path(path)
+            resolved = self.resolve_str(path)
             realpath = self.hiera.base_dir.joinpath(self.datadir, resolved)
             try:
                 with realpath.open('r') as fp:
@@ -55,7 +69,7 @@ class HieraBackend:
             except IOError:
                 data = {}
             data_item = HieraDataItem(self, num=num, path=realpath)
-            data_item.update(data)
+            data_item.update(data or {})
             yield data_item
 
     @property
@@ -64,5 +78,6 @@ class HieraBackend:
             return self._data
         except AttributeError:
             pass
-        ret = self._data = self.load()
+        data = self.load()
+        ret = self._data = self.resolve_data(list(data))
         return ret

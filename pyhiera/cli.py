@@ -82,8 +82,8 @@ class Command:
         context = {
             'environment': environment,
         }
-        hiera_data = Hiera.load_data(config_file, context=context)
-        hiera_dict = hiera_data.flatten()
+        hiera = Hiera.load_data(config_file, context=context)
+        hiera_dict = hiera.flatten()
 
         output_handler(hiera_dict)
 

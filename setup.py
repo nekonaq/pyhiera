@@ -16,12 +16,12 @@ setup(
     license='BSD',
     packages=find_packages(),
     python_requires='~=3.6.9',
+    install_requires=['pyyaml'],
     entry_points={
         'console_scripts': [
             'pyhiera = pyhiera.cli:Command.main',
         ]
     },
-    # install_requires=['gibberish'],
 )
 
 # Local Variables:
