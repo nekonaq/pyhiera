@@ -112,8 +112,9 @@ class Hiera:
                     hiera=self,
                 )
             )
-            item.update(defaults)
-            data_hash = item['data_hash']
+            backend_opts = defaults.copy()
+            backend_opts.update(item)
+            data_hash = backend_opts['data_hash']
             try:
                 backend_klass = self.BACKENDS[data_hash]
             except KeyError:
@@ -125,5 +126,4 @@ class Hiera:
                     )
                 )
 
-            # yield backend_klass(self, context=context, **item).load()
-            yield backend_klass(self, context=context, **item)
+            yield backend_klass(self, context=context, **backend_opts)
