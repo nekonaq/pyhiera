@@ -1,7 +1,13 @@
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
-from .hiera import Hiera                   # noqa: F401
-from .exceptions import (                  # noqa: F401
+from .hiera import Hiera
+from .exceptions import (
     HieraError,
     HieraConfigError,
+)
+
+__all__ = (
+    'Hiera',
+    'HieraError',
+    'HieraConfigError',
 )

@@ -1,4 +1,3 @@
-# import itertools
 from ..exceptions import HieraConfigError
 from . import yaml_data as backend_yaml_data
 
