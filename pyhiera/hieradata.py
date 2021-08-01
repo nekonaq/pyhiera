@@ -161,8 +161,11 @@ class HieraData:
         return ret
 
     def flatten(self):
-        keys = set.union(*[set(el) for el in self.values]) - {'lookup_options'}
-        return {
-            key: self.lookup(key)
-            for key in keys
-        }
+        values_list = [set(el) for el in self.values]
+        if values_list:
+            keys = set.union(*values_list) - {'lookup_options'}
+            return {
+                key: self.lookup(key)
+                for key in keys
+            }
+        return {}
