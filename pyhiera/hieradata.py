@@ -47,14 +47,13 @@ class HieraData:
         found = False
         for item in reversed(values):
             found = True
-            if not isinstance(item, dict):
-                raise HieraConfigError(
-                    "all 'hash' merged matching values must be a hash, key: '{0}'"
-                    "; config={hiera.config_file}".format(
-                        key,
-                        hiera=self.hiera,
-                    )
+            assert isinstance(item, dict), (
+                "all 'hash' merged matching values must be a hash, key: '{0}'"
+                "; config={hiera.config_file}".format(
+                    key,
+                    hiera=self.hiera,
                 )
+            )
             ret.update(item)
         return ret if found else default
 

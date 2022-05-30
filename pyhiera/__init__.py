@@ -1,4 +1,4 @@
-__version__ = '1.0.2'
+__version__ = '1.0.2203.3'
 
 from .hiera import Hiera
 from .exceptions import (
