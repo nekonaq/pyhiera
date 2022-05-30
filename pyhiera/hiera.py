@@ -126,4 +126,4 @@ class Hiera:
                     )
                 )
 
-            yield backend_klass(self, context=context, **backend_opts)
+            yield backend_klass.create(self, context=context, **backend_opts)

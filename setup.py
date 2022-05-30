@@ -15,7 +15,7 @@ setup(
     author_email="tnak@nekonaq.com",
     license='BSD',
     packages=find_packages(),
-    python_requires='~=3.6.9',
+    python_requires='>=3.6.9',
     install_requires=['pyyaml'],
     entry_points={
         'console_scripts': [
